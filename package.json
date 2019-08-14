@@ -1,6 +1,6 @@
 {
   "name": "uniapp-router-patch",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "在 uni-app 生成的小程序中 vue-router的兼容写法",
   "main": "dist/index.js",
   "scripts": {
