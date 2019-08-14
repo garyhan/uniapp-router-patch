@@ -102,7 +102,13 @@ function push(location, complete, fail, success) {
 
 function replace(location, complete, fail, success) {
     const url = parseUrl(location);
-    uni.redirectTo(url);
+    const params = {
+        url,
+        complete,
+        fail,
+        success
+    };
+    uni.redirectTo(params);
 }
 
 function go(delta) {
