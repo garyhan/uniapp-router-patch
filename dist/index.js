@@ -1,3 +1,5 @@
+var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) { return typeof obj; } : function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; };
+
 // Copyright Joyent, Inc. and other Node contributors.
 //
 // Permission is hereby granted, free of charge, to any person obtaining a
@@ -19,19 +21,19 @@
 // OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE
 // USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-var stringifyPrimitive = function (v) {
-    switch (typeof v) {
+var stringifyPrimitive = function stringifyPrimitive(v) {
+    switch (typeof v === 'undefined' ? 'undefined' : _typeof(v)) {
         case 'string':
-            return v
+            return v;
 
         case 'boolean':
-            return v ? 'true' : 'false'
+            return v ? 'true' : 'false';
 
         case 'number':
-            return isFinite(v) ? v : ''
+            return isFinite(v) ? v : '';
 
         default:
-            return ''
+            return '';
     }
 };
 
@@ -42,51 +44,48 @@ function stringify(obj, sep, eq, name) {
         obj = undefined;
     }
 
-    if (typeof obj === 'object') {
+    if ((typeof obj === 'undefined' ? 'undefined' : _typeof(obj)) === 'object') {
         return Object.keys(obj).map(function (k) {
             var ks = stringifyPrimitive(k) + eq;
             if (Array.isArray(obj[k])) {
                 return obj[k].map(function (v) {
-                    return ks + stringifyPrimitive(v)
-                }).join(sep)
+                    return ks + stringifyPrimitive(v);
+                }).join(sep);
             } else {
-                return ks + stringifyPrimitive(obj[k])
+                return ks + stringifyPrimitive(obj[k]);
             }
-        }).filter(Boolean).join(sep)
-
+        }).filter(Boolean).join(sep);
     }
 
-    if (!name) return ''
-    return stringifyPrimitive(name) + eq + stringifyPrimitive(obj)
+    if (!name) return '';
+    return stringifyPrimitive(name) + eq + stringifyPrimitive(obj);
 }
 
 /**
  * Created by gary on 2019-06-12.
  */
 
-
 function parseUrl(location) {
-    if (typeof location === 'string') return location
-    const {
-        path,
-        query
-    } = location;
+    if (typeof location === 'string') return location;
+    var path = location.path,
+        query = location.query;
 
-    const queryStr = stringify(query);
 
-    if (queryStr) return path
+    var queryStr = stringify(query);
 
-    return `${path}?${queryStr}`
+    if (queryStr) return path;
+
+    return path + '?' + queryStr;
 }
 
 function push(location, complete, fail, success) {
-    const url = parseUrl(location);
+    var url = parseUrl(location);
 
-    const params = {
-        url,
-        complete,
-        fail,
-        success
+    var params = {
+        url: url,
+        complete: complete,
+        fail: fail,
+        success: success
     };
 
     if (location.isTab) {
@@ -101,12 +100,12 @@ function push(location, complete, fail, success) {
 }
 
 function replace(location, complete, fail, success) {
-    const url = parseUrl(location);
-    const params = {
-        url,
-        complete,
-        fail,
-        success
+    var url = parseUrl(location);
+    var params = {
+        url: url,
+        complete: complete,
+        fail: fail,
+        success: success
     };
     uni.redirectTo(params);
 }
@@ -120,68 +119,68 @@ function back() {
 }
 
 function parseRoute($mp) {
-    const _$mp = $mp || {};
-    const path = _$mp.page && _$mp.page.route;
+    var _$mp = $mp || {};
+    var path = _$mp.page && _$mp.page.route;
     return {
-        page: `/${path}`,
+        page: '/' + path,
         params: {},
         query: _$mp.query,
         hash: '',
         fullPath: parseUrl({
-            path: `/${path}`,
-            query: _$mp.query,
+            path: '/' + path,
+            query: _$mp.query
         }),
-        name: path && path.replace(/\/(\w)/g, ($0, $1) => $1.toUpperCase())
-    }
+        name: path && path.replace(/\/(\w)/g, function ($0, $1) {
+            return $1.toUpperCase();
+        })
+    };
 }
 
-let _Vue;
+var _Vue = void 0;
 var index = {
-    install(Vue) {
+    install: function install(Vue) {
         if (this.installed && _Vue === Vue) {
-            return
+            return;
         }
 
         // 判断是否已经有$router安装了
         if (Vue.prototype.hasOwnProperty('$router')) {
-            return
+            return;
         }
         this.installed = true;
         _Vue = Vue;
-        const _router = {
+        var _router = {
             mode: 'history',
-            push,
-            replace,
-            go,
-            back
+            push: push,
+            replace: replace,
+            go: go,
+            back: back
         };
 
         Vue.mixin({
-            onLoad() {
-                const {
-                    $mp
-                } = this.$root;
+            onLoad: function onLoad() {
+                var $mp = this.$root.$mp;
+
                 this._route = parseRoute($mp);
             },
-            onShow() {
+            onShow: function onShow() {
                 _router.app = this;
                 _router.currentRoute = this._route;
             }
         });
 
         Object.defineProperty(Vue.prototype, '$router', {
-            get() {
-                return _router
+            get: function get() {
+                return _router;
             }
         });
 
         Object.defineProperty(Vue.prototype, '$route', {
-            get() {
-                return this._route
+            get: function get() {
+                return this._route;
             }
         });
     }
-
 };
 
 export default index;
