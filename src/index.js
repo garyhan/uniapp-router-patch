@@ -15,7 +15,7 @@ function parseUrl(location) {
 
     const queryStr = stringify(query)
 
-    if (queryStr) return path
+    if (!queryStr) return path
 
     return `${path}?${queryStr}`
 }

@@ -1,5 +1,3 @@
-var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) { return typeof obj; } : function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; };
-
 // Copyright Joyent, Inc. and other Node contributors.
 //
 // Permission is hereby granted, free of charge, to any person obtaining a
@@ -21,8 +19,8 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
 // OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE
 // USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-var stringifyPrimitive = function stringifyPrimitive(v) {
-    switch (typeof v === 'undefined' ? 'undefined' : _typeof(v)) {
+var stringifyPrimitive = function (v) {
+    switch (typeof v) {
         case 'string':
             return v;
 
@@ -44,7 +42,7 @@ function stringify(obj, sep, eq, name) {
         obj = undefined;
     }
 
-    if ((typeof obj === 'undefined' ? 'undefined' : _typeof(obj)) === 'object') {
+    if (typeof obj === 'object') {
         return Object.keys(obj).map(function (k) {
             var ks = stringifyPrimitive(k) + eq;
             if (Array.isArray(obj[k])) {
@@ -67,25 +65,26 @@ function stringify(obj, sep, eq, name) {
 
 function parseUrl(location) {
     if (typeof location === 'string') return location;
-    var path = location.path,
-        query = location.query;
+    const {
+        path,
+        query
+    } = location;
 
+    const queryStr = stringify(query);
 
-    var queryStr = stringify(query);
+    if (!queryStr) return path;
 
-    if (queryStr) return path;
-
-    return path + '?' + queryStr;
+    return `${path}?${queryStr}`;
 }
 
 function push(location, complete, fail, success) {
-    var url = parseUrl(location);
+    const url = parseUrl(location);
 
-    var params = {
-        url: url,
-        complete: complete,
-        fail: fail,
-        success: success
+    const params = {
+        url,
+        complete,
+        fail,
+        success
     };
 
     if (location.isTab) {
@@ -100,12 +99,12 @@ function push(location, complete, fail, success) {
 }
 
 function replace(location, complete, fail, success) {
-    var url = parseUrl(location);
-    var params = {
-        url: url,
-        complete: complete,
-        fail: fail,
-        success: success
+    const url = parseUrl(location);
+    const params = {
+        url,
+        complete,
+        fail,
+        success
     };
     uni.redirectTo(params);
 }
@@ -119,26 +118,24 @@ function back() {
 }
 
 function parseRoute($mp) {
-    var _$mp = $mp || {};
-    var path = _$mp.page && _$mp.page.route;
+    const _$mp = $mp || {};
+    const path = _$mp.page && _$mp.page.route;
     return {
-        page: '/' + path,
+        page: `/${path}`,
         params: {},
         query: _$mp.query,
         hash: '',
         fullPath: parseUrl({
-            path: '/' + path,
+            path: `/${path}`,
             query: _$mp.query
         }),
-        name: path && path.replace(/\/(\w)/g, function ($0, $1) {
-            return $1.toUpperCase();
-        })
+        name: path && path.replace(/\/(\w)/g, ($0, $1) => $1.toUpperCase())
     };
 }
 
-var _Vue = void 0;
+let _Vue;
 var index = {
-    install: function install(Vue) {
+    install(Vue) {
         if (this.installed && _Vue === Vue) {
             return;
         }
@@ -149,38 +146,40 @@ var index = {
         }
         this.installed = true;
         _Vue = Vue;
-        var _router = {
+        const _router = {
             mode: 'history',
-            push: push,
-            replace: replace,
-            go: go,
-            back: back
+            push,
+            replace,
+            go,
+            back
         };
 
         Vue.mixin({
-            onLoad: function onLoad() {
-                var $mp = this.$root.$mp;
-
+            onLoad() {
+                const {
+                    $mp
+                } = this.$root;
                 this._route = parseRoute($mp);
             },
-            onShow: function onShow() {
+            onShow() {
                 _router.app = this;
                 _router.currentRoute = this._route;
             }
         });
 
         Object.defineProperty(Vue.prototype, '$router', {
-            get: function get() {
+            get() {
                 return _router;
             }
         });
 
         Object.defineProperty(Vue.prototype, '$route', {
-            get: function get() {
+            get() {
                 return this._route;
             }
         });
     }
+
 };
 
 export default index;
